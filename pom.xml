@@ -12,6 +12,7 @@
         <module>common</module>
         <module>interface</module>
         <module>service_sellergoods</module>
+        <module>web_management</module>
     </modules>
     <!-- 集中定义依赖版本号 -->
     <properties>
