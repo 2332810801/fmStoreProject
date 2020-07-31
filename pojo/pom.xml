@@ -9,12 +9,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>interface</artifactId>
+    <artifactId>pojo</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>com.dj</groupId>
-            <artifactId>pojo</artifactId>
+            <artifactId>common</artifactId>
             <version>1.0</version>
         </dependency>
     </dependencies>
