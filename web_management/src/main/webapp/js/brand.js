@@ -46,7 +46,7 @@ new Vue({
             axios.post(url,this.brand).then(res=>{
                   if(res.data.success){
                         alert(res.data.message)
-                        this.findBrandAll(1);
+                        this.pageHandler(1);
                     }else{
                         alert(res.data.message);
                     }
@@ -78,7 +78,7 @@ new Vue({
             axios.post("/brand/deleteById",Qs.stringify({id:this.selectedId},{indices:false})).then(res=>{
                 if(res.data.success){
                     alert(res.data.message)
-                    this.findBrandAll(1);
+                    this.pageHandler(1);
                 }else{
                     alert(res.data.message);
                 }
