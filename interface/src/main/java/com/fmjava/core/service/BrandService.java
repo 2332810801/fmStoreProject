@@ -32,4 +32,6 @@ public interface BrandService {
     void update(Brand brand);
 
     void deleteById(Long[] id);
+
+    List<Brand> selectOptionList();
 }

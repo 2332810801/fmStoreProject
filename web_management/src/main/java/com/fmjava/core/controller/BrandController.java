@@ -76,4 +76,9 @@ public class BrandController {
             return new Result(false,"删除失败");
         }
     }
+
+    @RequestMapping("/selectOptionList")
+    public List<Brand> selectOptionList(){
+        return  service.selectOptionList();
+    }
 }

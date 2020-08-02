@@ -64,4 +64,9 @@ public class BrandServiceImpl implements BrandService{
         criteria.andIdIn(Arrays.asList(id));
         brandDao.deleteByExample(brandQuery);
     }
+
+    @Override
+    public List<Brand> selectOptionList() {
+        return brandDao.selectByExample(null);
+    }
 }

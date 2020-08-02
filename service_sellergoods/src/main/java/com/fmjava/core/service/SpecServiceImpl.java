@@ -96,4 +96,9 @@ public class SpecServiceImpl implements SpecService {
 
     }
 
+    @Override
+    public List<Specification> selectOptionList() {
+        return specdao.selectByExample(null);
+    }
+
 }

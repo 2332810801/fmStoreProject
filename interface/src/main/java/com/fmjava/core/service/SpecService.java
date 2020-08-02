@@ -5,6 +5,8 @@ import com.fmjava.core.pojo.entity.SpecEntity;
 import com.fmjava.core.pojo.specification.Specification;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.List;
+
 public interface SpecService {
     PageResult findPageSpec(Integer page, Integer pageSize,Specification spec);
 
@@ -15,4 +17,6 @@ public interface SpecService {
     void update(SpecEntity specEntity);
 
     void deleteById(Long[] id);
+
+    List<Specification> selectOptionList();
 }
