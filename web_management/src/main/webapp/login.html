@@ -37,12 +37,12 @@
 			<div class="tab-content tab-wraped">
 
 				<div id="profile" class="tab-pane  active">
-					<form class="sui-form">
+					<form class="sui-form" action="/login" id="loginForm" method="post">
 						<div class="input-prepend"><span class="add-on loginname"></span>
-							<input id="prependedInput1" type="text" placeholder="邮箱/用户名/手机号" class="span2 input-xfat">
+							<input id="prependedInput1" name="username" type="text" placeholder="邮箱/用户名/手机号" class="span2 input-xfat">
 						</div>
 						<div class="input-prepend"><span class="add-on loginpwd"></span>
-							<input id="prependedInput2" type="password" placeholder="请输入密码" class="span2 input-xfat">
+							<input id="prependedInput2" name="password" type="password" placeholder="请输入密码" class="span2 input-xfat">
 						</div>
 						<div class="setting">
 							<div id="slider">
@@ -51,7 +51,7 @@
 							</div>
 						</div>
 						<div class="logined">
-							<a class="sui-btn btn-block btn-xlarge btn-danger" href="admin/index.html" target="_blank">登&nbsp;&nbsp;录</a>
+							<a class="sui-btn btn-block btn-xlarge btn-danger" id="loginbtn" href="admin/index.html" target="_blank">登&nbsp;&nbsp;录</a>
 						</div>
 					</form>
 
@@ -78,5 +78,12 @@
 		<div class="beian">Copyright © 2004-2019  FMJava.com 版权所有</div>
 	</div>
 </body>
-
+<script src="plugins/jQuery/jquery-2.2.3.min.js"></script>
+<script>
+	$(function () {
+		$("#loginbtn").click(function () {
+			$("#loginForm").submit();
+		})
+	})
+</script>
 </html>
