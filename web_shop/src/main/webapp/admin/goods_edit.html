@@ -23,7 +23,7 @@
 		ue.ready(function () {
 			UE.Editor.prototype._bkGetActionUrl=UE.Editor.prototype.getActionUrl;
 			UE.Editor.prototype.getActionUrl=function (action) {
-					if(action=='upload/uploadImage'){
+					if(action=='upload/uploadImage.do'){
 						return "http://localhost:8083//upload/uploadImage";
 					}else {
 						return this._bkGetActionUrl.call(this,action);
