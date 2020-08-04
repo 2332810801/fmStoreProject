@@ -11,6 +11,11 @@ new Vue({
         typeItemID:"",//模板ID
         brandList:[],//品牌列表
         selBrand:-1,//当前选中的品牌
+        curImageObj:{
+            color:"",//颜色,
+            url:"",//地址
+        },
+        ImageList:[],//图片数组
     },
     methods:{
         loadCateData (id) {
@@ -56,14 +61,54 @@ new Vue({
                })
             }
         },
+        //文件上传
+        uploadFile(){
+            var formData = new FormData();
+            formData.append('file', file.files[0])
+            const instance=axios.create({
+                withCredentials: true
+            });
+            instance.post('/upload/uploadFile', formData).then(res=> {
+              if(res.data.success){
+                  this.curImageObj.url=res.data.message;
+              }else {
+                  alert(res.data.message);
+              }
+            }).catch(err=> {
+                alert("请求异常")
+            });
+        },
         getBrandList(){
             axios.get("/brand/findBrandAll").then(res=>{
                 this.brandList=res.data;
             }).catch(err=>{
                 alert("请求失败");
             })
+        },
+        /*保存商品图片到数据库*/
+        saveImage(){
+            if(this.curImageObj.color==''&&this.curImageObj.url==''){
+                alert("请输入颜色和上传图片");
+                return;
+            }
+            var obj={color:this.curImageObj.color,url:this.curImageObj.url}
+            this.ImageList.push(obj);
+            this.curImageObj.color="";
+            this.curImageObj.url="";
+        },
+        /*删除图片*/
+        delImage(url,index){
+            /*发送删除图片的请求*/
+            axios.get("/upload/delteImage?url="+url).then(res=>{
+                if(res.data.success){
+                    this.ImageList.splice(index,1);
+                }else{
+                    alert(res.data.message)
+                }
+            }).catch(err=>{
+                alert("请求失败")
+            })
         }
-
     },
     created() {
         this.loadCateData(0);

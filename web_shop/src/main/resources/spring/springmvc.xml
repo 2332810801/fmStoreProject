@@ -10,8 +10,7 @@
 
     <!--注解扫描-->
     <context:component-scan base-package="com.fmjava"/>
-    <!--    <context:property-placeholder location="classpath:config/application.properties" />-->
-
+    <context:property-placeholder location="classpath:config/application.properties" />
     <!-- 注解驱动 -->
     <mvc:annotation-driven>
         <!-- 转换器 -->
