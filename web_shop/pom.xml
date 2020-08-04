@@ -12,7 +12,7 @@
     <artifactId>web_shop</artifactId>
     <packaging>war</packaging>
 
-    <name>web_shop Maven Webapp</name>
+    <name>web_shop</name>
     <!-- FIXME change it to the project's website -->
     <url>http://www.example.com</url>
 
@@ -33,6 +33,35 @@
             <groupId>com.dj</groupId>
             <artifactId>interface</artifactId>
             <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.9</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fmjava</groupId>
+            <artifactId>ueditor</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fmjava</groupId>
+            <artifactId>json</artifactId>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
 
