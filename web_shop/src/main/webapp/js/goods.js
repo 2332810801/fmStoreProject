@@ -16,6 +16,16 @@ new Vue({
             url:"",//地址
         },
         ImageList:[],//图片数组
+        specList:[],//从服务器获取的所有规格列表,
+        specSelList:[],//当前选中的规格
+        isEnableSpec:1, //是否启用规格
+        rowList:[],//规格显示
+        goodsEntity:{
+            goods:{},
+            goodsDesc:{},
+            itemList:{}
+        }//最终保存商品的实体
+
     },
     methods:{
         loadCateData (id) {
@@ -78,13 +88,6 @@ new Vue({
                 alert("请求异常")
             });
         },
-        getBrandList(){
-            axios.get("/brand/findBrandAll").then(res=>{
-                this.brandList=res.data;
-            }).catch(err=>{
-                alert("请求失败");
-            })
-        },
         /*保存商品图片到数据库*/
         saveImage(){
             if(this.curImageObj.color==''&&this.curImageObj.url==''){
@@ -108,10 +111,121 @@ new Vue({
             }).catch(err=>{
                 alert("请求失败")
             })
+        },
+        searchObjectByKey:function(list,keyName,keyValue){
+            for(var i=0;i<list.length;i++){
+                if(list[i][keyName] == keyValue){
+                    return list[i];
+                }
+            }
+            return null;
+        },
+        updateSpecState(event,specName,optionName){
+            var obj=this.searchObjectByKey(this.specSelList,"specName",specName);
+            if(obj!=null){
+                if(event.target.checked){
+                    /*选中*/
+                    obj.specOptions.push(optionName);
+                }else {
+                    /*取消选中*/
+                  var idx= obj.specOptions.indexOf(optionName);
+                  obj.specOptions.splice(idx,1);
+                  /*判断规格选项中是否还有选项*/
+                  if(obj.specOptions.length==0){
+                      var idx=this.specSelList.indexOf(obj);
+                      this.specSelList.splice(idx,1);
+                  }
+                }
+            }else{
+                this.specSelList.push({"specName":specName,"specOptions":[optionName]})
+            }
+            this.createRowList();
+        },
+        createRowList() {
+            var rowList = [
+                {spec:{},price:0,num:9999,status:'0',isDefault:'0'}
+            ];
+            for(var i = 0; i< this.specSelList.length; i++ ){
+                var specObj = this.specSelList[i];
+                var specName = specObj.specName; //选择版本
+                var specOptions = specObj.specOptions; //["6G+64G","8G+128G"]
+                var newRowList = [];
+                for(var j=0; j<rowList.length; j++){
+                    var oldRow = rowList[j]; //{spec:{选择颜色:星云紫},price:0,num:9999,status:'0',isDefault:'0'}
+                    for(var k=0; k<specOptions.length; k++ ){
+                        var newRow = JSON.parse(JSON.stringify(oldRow));
+                        //{spec:{选择颜色:星云紫,选择版本:8G+128G},price:0,num:9999,status:'0',isDefault:'0'}
+                        newRow.spec[specName] = specOptions[k];
+                        newRowList.push(newRow);
+                    }
+                }
+                rowList = newRowList;
+            }
+            this.rowList = rowList;
+        },
+        /*保存商品*/
+        saveGoods(){
+
+                this.goodsEntity.goods.category1Id = this.catSelected1;
+                this.goodsEntity.goods.category2Id = this.catSelected2;
+                this.goodsEntity.goods.category3Id = this.catSelected3;
+                this.goodsEntity.goods.typeTemplateId=this.typeItemID,
+                this.goodsEntity.goods.brandId=this.selBrand,
+                this.goodsEntity.goods.isEnableSpec=this.isEnableSpec,
+                this.goodsEntity.goodsDesc.itemImages=this.ImageList,
+                this.goodsEntity.goodsDesc.specificationItems=this.specSelList,
+                this.goodsEntity.goodsDesc.introduction=UE.getEditor('editor').getContent()
+                this.goodsEntity.itemList = this.rowList;
+
+                /*判断数据正确性*/
+                if(this.catSelected1===-1&&this.catSelected1==null){
+                    alert("请选择一级分类")
+                    return;
+                }
+                if(this.catSelected2===-1&&this.catSelected2==null){
+                    alert("请选择二级分类")
+                    return;
+                 }
+                if(this.catSelected3===-1&&this.catSelected3==null){
+                    alert("请选择三级分类")
+                    return;
+                }
+                if(this.typeItemID==null){
+                    alert("模板ID异常");
+                    return;
+                }
+                if(this.selBrand===-1&&this.selBrand==null){
+                    alert("请选择品牌");
+                    return;
+                }
+             //发送请求
+             axios.post("/goods/add",this.goodsEntity).then(res=> {
+                     console.log(res.data);
+                  //   location.href="goods.html";
+                 }).catch(err=>{
+                 alert("请求失败");
+             });
         }
+    },
+    watch: { //监听属性的变化
+        typeItemID(newValue, oldValue) {
+            this.brandList =[];
+            this.specList=[];
+            this.selBrand = -1;
+            axios.post("/temp/findOne.do?id="+newValue).then(res=>{
+                this.brandList = JSON.parse(res.data.brandIds);
+                }).catch(err=> {
+                console.log(err);
+            });
+            axios.get("/temp/findBySpecList?id="+newValue)
+                .then(res=>{
+                    this.specList = res.data;
+                    console.log(res.data.specList.options);
+                }).catch(function (reason) {
+            });
+        },
     },
     created() {
         this.loadCateData(0);
-        this.getBrandList();
     }
 });
