@@ -10,11 +10,16 @@ import com.fmjava.core.dao.item.ItemCatDao;
 import com.fmjava.core.dao.item.ItemDao;
 import com.fmjava.core.dao.seller.SellerDao;
 import com.fmjava.core.pojo.entity.GoodsEntity;
+import com.fmjava.core.pojo.entity.PageResult;
 import com.fmjava.core.pojo.good.Brand;
+import com.fmjava.core.pojo.good.Goods;
 import com.fmjava.core.pojo.good.GoodsDesc;
+import com.fmjava.core.pojo.good.GoodsQuery;
 import com.fmjava.core.pojo.item.Item;
 import com.fmjava.core.pojo.item.ItemCat;
 import com.fmjava.core.pojo.seller.Seller;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import org.opensaml.xml.signature.G;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,6 +59,27 @@ public class GoodsServiceImpl implements GoodsService {
         insertItem(goodsEntity);
 
     }
+
+    @Override
+    public PageResult findPage(Integer page, Integer pageSize, Goods goods) {
+        PageHelper.startPage(page, pageSize);
+        GoodsQuery query = new GoodsQuery();
+        GoodsQuery.Criteria criteria = query.createCriteria();
+        if (goods != null) {
+            if (goods.getGoodsName() != null && !"".equals(goods.getGoodsName())) {
+                criteria.andGoodsNameLike("%"+goods.getGoodsName()+"%");
+            }
+            if (goods.getAuditStatus() != null && !"".equals(goods.getAuditStatus())) {
+                criteria.andAuditStatusEqualTo(goods.getAuditStatus());
+            }
+            if (goods.getSellerId() != null && !"".equals(goods.getSellerId())){
+                criteria.andSellerIdEqualTo(goods.getSellerId());
+            }
+        }
+        Page<Goods> goodsList = (Page<Goods>)goodsDao.selectByExample(query);
+        return new PageResult(goodsList.getTotal(), goodsList.getResult());
+    }
+
     public void insertItem(GoodsEntity goodsEntity){
         if("1".equals(goodsEntity.getGoods().getIsEnableSpec())){
             //勾选了规格复选框

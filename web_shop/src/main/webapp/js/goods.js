@@ -24,7 +24,7 @@ new Vue({
             goods:{},
             goodsDesc:{},
             itemList:{}
-        }//最终保存商品的实体
+        },//最终保存商品的实体
 
     },
     methods:{
@@ -201,7 +201,7 @@ new Vue({
              //发送请求
              axios.post("/goods/add",this.goodsEntity).then(res=> {
                      console.log(res.data);
-                  //   location.href="goods.html";
+                    location.href="goods.html";
                  }).catch(err=>{
                  alert("请求失败");
              });
@@ -221,7 +221,7 @@ new Vue({
                 .then(res=>{
                     this.specList = res.data;
                     console.log(res.data.specList.options);
-                }).catch(function (reason) {
+                }).catch(err=> {
             });
         },
     },

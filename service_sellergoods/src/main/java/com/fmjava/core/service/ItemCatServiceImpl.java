@@ -26,4 +26,10 @@ public class ItemCatServiceImpl implements ItemCatService {
     public ItemCat findTypeId(Long id) {
         return itemCatDao.selectByPrimaryKey(id);
     }
+
+    @Override
+    public List<ItemCat> findAll() {
+        return itemCatDao.selectByExample(null);
+    }
+
 }

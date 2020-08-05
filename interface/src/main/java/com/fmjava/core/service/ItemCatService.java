@@ -9,4 +9,6 @@ public interface ItemCatService {
      List<ItemCat> findByParentId(Long parentId);
 
     ItemCat findTypeId(Long id);
+
+    List<ItemCat> findAll();
 }

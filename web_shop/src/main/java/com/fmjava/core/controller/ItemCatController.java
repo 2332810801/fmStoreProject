@@ -22,4 +22,8 @@ public class ItemCatController {
     public ItemCat findTypeId(Long id){
         return service.findTypeId(id);
     }
+    @RequestMapping("/findAll")
+    public List<ItemCat> findAll() {
+        return service.findAll();
+    }
 }
