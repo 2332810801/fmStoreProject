@@ -34,7 +34,7 @@ public class GoodsController {
     public PageResult search(Integer page , Integer pageSize,@RequestBody Goods goods) {
         //获取当前登录用户的用户名
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
-        goods.setSellerId(userName);
+           goods.setSellerId(userName);
         PageResult result = service.findPage(page,pageSize,goods);
         return result;
     }
@@ -68,6 +68,17 @@ public class GoodsController {
         } catch (Exception e) {
             e.printStackTrace();
             return  new Result(false, "删除失败!");
+        }
+    }
+
+    @RequestMapping("/updateStatus")
+    public Result updateStatus(Long[] ids, String status) {
+        try {
+            service.updateStatus(ids, status);
+            return new Result(true, "状态修改成功!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false, "状态修改失败!");
         }
     }
 }

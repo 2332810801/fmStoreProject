@@ -27,11 +27,28 @@ public interface BrandService {
      */
     void addBrand(Brand brand);
 
+    /**
+     * 根据主键查询品牌信息
+     * @param id
+     * @return
+     */
     Brand findById(Long id);
 
+    /**
+     * 根据主键修改品牌信息
+     * @param brand
+     */
     void update(Brand brand);
 
+    /**
+     * 批量删除品牌
+     * @param id
+     */
     void deleteById(Long[] id);
 
+    /**
+     * 查询品牌列表
+     * @return
+     */
     List<Brand> selectOptionList();
 }
