@@ -208,7 +208,7 @@
 					<div class="row data-type">
 						<div class="col-md-2 title">是否启用规格</div>
 						<div class="col-md-10 data">
-							<input type="checkbox" v-model="isEnableSpec" :true-value="1" :true-value="0">
+							<input type="checkbox" v-model="isEnableSpec" :true-value="1" :false-value="0">
 						</div>
 					</div>
 				<div v-if="isEnableSpec == 1">
@@ -217,8 +217,7 @@
 							<div class="col-md-2 title" >{{specItem.specName}}</div>
 							<div class="col-md-10 data">
 									<span v-for="option in specItem.options">
-										<input  type="checkbox" :checked="checkAttributeValue(specItem.specName,option.optionName)"
-												@click="updateSpecState($event,specItem.specName,option.optionName)">{{option.optionName}}
+										<input  type="checkbox" @click="updateSpecState($event,specItem.specName,option.optionName)">{{option.optionName}}
 									</span>
 							</div>
 						</div>

@@ -12,7 +12,7 @@
     <artifactId>web_management</artifactId>
     <packaging>war</packaging>
 
-    <name>web_management Maven Webapp</name>
+    <name>web_management</name>
     <!-- FIXME change it to the project's website -->
     <url>http://www.example.com</url>
 

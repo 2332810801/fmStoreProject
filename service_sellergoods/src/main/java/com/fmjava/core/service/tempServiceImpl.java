@@ -9,12 +9,13 @@ import com.fmjava.core.pojo.specification.SpecificationOption;
 import com.fmjava.core.pojo.specification.SpecificationOptionQuery;
 import com.fmjava.core.pojo.template.TypeTemplate;
 import com.fmjava.core.pojo.template.TypeTemplateQuery;
+import com.fmjava.core.utils.Constants;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +27,31 @@ public class tempServiceImpl implements tempService {
     TypeTemplateDao templateDao;
     @Autowired
     SpecificationOptionDao optionDao;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Override
     public PageResult findPage(Integer page, Integer pageSize, TypeTemplate searchTemp) {
+       if(!redisTemplate.hasKey(Constants.BRAND_LIST_REDIS)||!redisTemplate.hasKey(Constants.SPEC_LIST_REDIS)){
+           //redis中缓存模板所有数据
+           List<TypeTemplate> templateAll = templateDao.selectByExample(null);
+           for (TypeTemplate typeTemplate : templateAll) {
+               //模板id作为key, 品牌集合作为value缓存入redis中
+               String brandIdsJsonStr = typeTemplate.getBrandIds();
+               //将json转换成集合
+               List<Map> brandList = JSON.parseArray(brandIdsJsonStr, Map.class);
+               redisTemplate.boundHashOps(Constants.BRAND_LIST_REDIS)
+                       .put(typeTemplate.getId(), brandList);
+
+               //模板id作为key, 规格集合作为value缓存入redis中
+               List<Map> specList = findBySpecList(typeTemplate.getId());
+               redisTemplate.boundHashOps(Constants.SPEC_LIST_REDIS)
+                       .put(typeTemplate.getId(), specList);
+           }
+       }
+
+
+
         PageHelper.startPage(page,pageSize);
         TypeTemplateQuery templateQuery = new TypeTemplateQuery();
         if(searchTemp!=null){

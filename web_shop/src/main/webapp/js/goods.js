@@ -198,37 +198,13 @@ new Vue({
                     alert("请选择品牌");
                     return;
                 }
-            let id = this.GetQueryString("id");
-            var url = '';
-            if (id != null){
-                url = '/goods/update';
-            }else {
-                url = '/goods/add';
-            }
              //发送请求
-             axios.post(url,this.goodsEntity).then(res=> {
+             axios.post("/goods/add",this.goodsEntity).then(res=> {
                      console.log(res.data);
                     location.href="goods.html";
                  }).catch(err=>{
                  alert("请求失败");
              });
-        },
-        GetQueryString(name) {
-            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)","i");
-            var r = window.location.search.substr(1).match(reg);
-            if (r!=null) return (r[2]); return null;
-        },
-        checkAttributeValue(specName,optionName){ //判断当前规格是否为选中状态
-            var object = this.searchObjectByKey(this.specSelList,"specName",specName);
-            if(object != null){
-                if(object.specOptions.indexOf(optionName)>=0){
-                    return true;
-                }else{
-                    return false;
-                }
-            }else{
-                return false;
-            }
         }
     },
     watch: { //监听属性的变化
@@ -238,9 +214,6 @@ new Vue({
             this.selBrand = -1;
             axios.post("/temp/findOne.do?id="+newValue).then(res=>{
                 this.brandList = JSON.parse(res.data.brandIds);
-                if(this.goodsEntity.goods.brandId!=null){
-                    this.selBrand=this.goodsEntity.goods.brandId;
-                }
                 }).catch(err=> {
                 console.log(err);
             });
@@ -254,56 +227,5 @@ new Vue({
     },
     created() {
         this.loadCateData(0);
-    },
-    mounted() {
-        var id = this.GetQueryString("id");
-        if (id != null){
-            //根据id查询当前商品
-            axios.get("/goods/findOne?id="+id)
-                .then(res=>{
-                    //1.回显商品
-                    this.goodsEntity.goods = res.data.goods;
-                    //2.商品描述
-                    this.goodsEntity.goodsDesc = res.data.goodsDesc;
-                    //3.分类模板
-                    this.typeItemID = res.data.goods.typeTemplateId;
-                    //回显图片
-                    this.ImageList = JSON.parse(res.data.goodsDesc.itemImages);
-                    //回显富文本
-                    UE.getEditor("editor").ready(function () {
-                        UE.getEditor("editor").setContent(res.data.goodsDesc.introduction);
-                    });
-                    //选中规格
-                    this.specSelList  = JSON.parse(res.data.goodsDesc.specificationItems);
-                    //库存列表
-                    this.rowList = res.data.itemList;
-                    for (var i = 0; i< this.rowList.length; i++){
-                        this.rowList[i].spec =  JSON.parse(this.rowList[i].spec);
-                    }
-
-
-                    /*分类选中*/
-                    this.catSelected1 = res.data.goods.category1Id;
-                    //控制选项默认选中状态
-                    if (res.data.goods.category1Id >= 0){
-                        this.grade  = 2
-                        this.loadCateData(this.catSelected1);
-                        this.catSelected2 = res.data.goods.category2Id;
-
-                        if (this.catSelected2 >= 0){
-                            axios.post("/itemCat/findByParentId?parentId="+this.catSelected2).then(res=>{
-                                    //取服务端响应的结果
-                                    this.categoryList3 = res.data;
-                                }).catch(err=>{
-                                console.log(err);
-                            })
-                            this.catSelected3 = res.data.goods.category3Id;
-                        }
-                    }
-                    console.log(res.data);
-                }).catch(err=> {
-                console.log(err);
-            });
-        }
     }
 });
