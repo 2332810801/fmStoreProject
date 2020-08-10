@@ -71,7 +71,7 @@
     <!-- 给当前服务起个名 -->
     <dubbo:application name="fmjava-web_shop-web" />
     <!-- 配置连接zookeeper地址  -->
-    <dubbo:registry address="zookeeper://192.168.0.108:2181"/>
+    <dubbo:registry address="zookeeper://192.168.0.106:2181"/>
     <dubbo:reference id="SellerService" interface="com.fmjava.core.service.SellerService"></dubbo:reference>
     <beans:bean id="userDetailService" class="com.fmjava.core.service.UserDetailServiceImpl">
         <beans:property name="sellerService" ref="SellerService"></beans:property>

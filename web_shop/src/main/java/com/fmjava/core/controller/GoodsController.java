@@ -38,4 +38,36 @@ public class GoodsController {
         PageResult result = service.findPage(page,pageSize,goods);
         return result;
     }
+
+    @RequestMapping("/findOne")
+    public GoodsEntity findOne(Long id) {
+        return service.findOne(id);
+    }
+    @RequestMapping("/update")
+    public Result update(@RequestBody GoodsEntity goodsEntity){
+        try {
+            //获取当前登录用户的用户名
+            String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+            //获取这个商品的所有者
+            String sellerId = goodsEntity.getGoods().getSellerId();
+            if (!userName.equals(sellerId)) {
+                return new Result(false, "您没有权限修改此商品!");
+            }
+            service.update(goodsEntity);
+            return new Result(true, "修改成功!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false, "修改失败!");
+        }
+    }
+    @RequestMapping("/delete")
+    public Result delete(Long[] ids) {
+        try {
+            service.delete(ids);
+            return  new Result(true, "删除成功!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return  new Result(false, "删除失败!");
+        }
+    }
 }

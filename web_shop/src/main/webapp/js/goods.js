@@ -44,7 +44,7 @@ new Vue({
                         this.categoryList3 =res.data;
                     }
                 }).catch(err=>{
-                    alert("请求失败");
+                alert("请求失败");
             })
         },
         getCatSelected(grade) {//选项改变时调用
@@ -64,11 +64,11 @@ new Vue({
             }
             if (grade == 3){ //第3级选项改变
                 //加载模板
-               axios.get("/itemCat/findTypeId?id="+this.catSelected3).then(res=>{
-                 this.typeItemID=res.data.typeId;
-               }).catch(err=>{
-                   alert("请求失败")
-               })
+                axios.get("/itemCat/findTypeId?id="+this.catSelected3).then(res=>{
+                    this.typeItemID=res.data.typeId;
+                }).catch(err=>{
+                    alert("请求失败")
+                })
             }
         },
         //文件上传
@@ -79,11 +79,11 @@ new Vue({
                 withCredentials: true
             });
             instance.post('/upload/uploadFile', formData).then(res=> {
-              if(res.data.success){
-                  this.curImageObj.url=res.data.message;
-              }else {
-                  alert(res.data.message);
-              }
+                if(res.data.success){
+                    this.curImageObj.url=res.data.message;
+                }else {
+                    alert(res.data.message);
+                }
             }).catch(err=> {
                 alert("请求异常")
             });
@@ -128,13 +128,13 @@ new Vue({
                     obj.specOptions.push(optionName);
                 }else {
                     /*取消选中*/
-                  var idx= obj.specOptions.indexOf(optionName);
-                  obj.specOptions.splice(idx,1);
-                  /*判断规格选项中是否还有选项*/
-                  if(obj.specOptions.length==0){
-                      var idx=this.specSelList.indexOf(obj);
-                      this.specSelList.splice(idx,1);
-                  }
+                    var idx= obj.specOptions.indexOf(optionName);
+                    obj.specOptions.splice(idx,1);
+                    /*判断规格选项中是否还有选项*/
+                    if(obj.specOptions.length==0){
+                        var idx=this.specSelList.indexOf(obj);
+                        this.specSelList.splice(idx,1);
+                    }
                 }
             }else{
                 this.specSelList.push({"specName":specName,"specOptions":[optionName]})
@@ -166,45 +166,69 @@ new Vue({
         /*保存商品*/
         saveGoods(){
 
-                this.goodsEntity.goods.category1Id = this.catSelected1;
-                this.goodsEntity.goods.category2Id = this.catSelected2;
-                this.goodsEntity.goods.category3Id = this.catSelected3;
-                this.goodsEntity.goods.typeTemplateId=this.typeItemID,
+            this.goodsEntity.goods.category1Id = this.catSelected1;
+            this.goodsEntity.goods.category2Id = this.catSelected2;
+            this.goodsEntity.goods.category3Id = this.catSelected3;
+            this.goodsEntity.goods.typeTemplateId=this.typeItemID,
                 this.goodsEntity.goods.brandId=this.selBrand,
                 this.goodsEntity.goods.isEnableSpec=this.isEnableSpec,
                 this.goodsEntity.goodsDesc.itemImages=this.ImageList,
                 this.goodsEntity.goodsDesc.specificationItems=this.specSelList,
                 this.goodsEntity.goodsDesc.introduction=UE.getEditor('editor').getContent()
-                this.goodsEntity.itemList = this.rowList;
+            this.goodsEntity.itemList = this.rowList;
 
-                /*判断数据正确性*/
-                if(this.catSelected1===-1&&this.catSelected1==null){
-                    alert("请选择一级分类")
-                    return;
+            /*判断数据正确性*/
+            if(this.catSelected1===-1&&this.catSelected1==null){
+                alert("请选择一级分类")
+                return;
+            }
+            if(this.catSelected2===-1&&this.catSelected2==null){
+                alert("请选择二级分类")
+                return;
+            }
+            if(this.catSelected3===-1&&this.catSelected3==null){
+                alert("请选择三级分类")
+                return;
+            }
+            if(this.typeItemID==null){
+                alert("模板ID异常");
+                return;
+            }
+            if(this.selBrand===-1&&this.selBrand==null){
+                alert("请选择品牌");
+                return;
+            }
+            let id = this.GetQueryString("id");
+            var url = '';
+            if (id != null){
+                url = '/goods/update';
+            }else {
+                url = '/goods/add';
+            }
+            //发送请求
+            axios.post(url,this.goodsEntity).then(res=> {
+                console.log(res.data);
+                location.href="goods.html";
+            }).catch(err=>{
+                alert("请求失败");
+            });
+        },
+        GetQueryString(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)","i");
+            var r = window.location.search.substr(1).match(reg);
+            if (r!=null) return (r[2]); return null;
+        },
+        checkAttributeValue(specName,optionName){ //判断当前规格是否为选中状态
+            var object = this.searchObjectByKey(this.specSelList,"specName",specName);
+            if(object != null){
+                if(object.specOptions.indexOf(optionName)>=0){
+                    return true;
+                }else{
+                    return false;
                 }
-                if(this.catSelected2===-1&&this.catSelected2==null){
-                    alert("请选择二级分类")
-                    return;
-                 }
-                if(this.catSelected3===-1&&this.catSelected3==null){
-                    alert("请选择三级分类")
-                    return;
-                }
-                if(this.typeItemID==null){
-                    alert("模板ID异常");
-                    return;
-                }
-                if(this.selBrand===-1&&this.selBrand==null){
-                    alert("请选择品牌");
-                    return;
-                }
-             //发送请求
-             axios.post("/goods/add",this.goodsEntity).then(res=> {
-                     console.log(res.data);
-                    location.href="goods.html";
-                 }).catch(err=>{
-                 alert("请求失败");
-             });
+            }else{
+                return false;
+            }
         }
     },
     watch: { //监听属性的变化
@@ -214,7 +238,10 @@ new Vue({
             this.selBrand = -1;
             axios.post("/temp/findOne.do?id="+newValue).then(res=>{
                 this.brandList = JSON.parse(res.data.brandIds);
-                }).catch(err=> {
+                if(this.goodsEntity.goods.brandId!=null){
+                    this.selBrand=this.goodsEntity.goods.brandId;
+                }
+            }).catch(err=> {
                 console.log(err);
             });
             axios.get("/temp/findBySpecList?id="+newValue)
@@ -227,5 +254,56 @@ new Vue({
     },
     created() {
         this.loadCateData(0);
+    },
+    mounted() {
+        var id = this.GetQueryString("id");
+        if (id != null){
+            //根据id查询当前商品
+            axios.get("/goods/findOne?id="+id)
+                .then(res=>{
+                    //1.回显商品
+                    this.goodsEntity.goods = res.data.goods;
+                    //2.商品描述
+                    this.goodsEntity.goodsDesc = res.data.goodsDesc;
+                    //3.分类模板
+                    this.typeItemID = res.data.goods.typeTemplateId;
+                    //回显图片
+                    this.ImageList = JSON.parse(res.data.goodsDesc.itemImages);
+                    //回显富文本
+                    UE.getEditor("editor").ready(function () {
+                        UE.getEditor("editor").setContent(res.data.goodsDesc.introduction);
+                    });
+                    //选中规格
+                    this.specSelList  = JSON.parse(res.data.goodsDesc.specificationItems);
+                    //库存列表
+                    this.rowList = res.data.itemList;
+                    for (var i = 0; i< this.rowList.length; i++){
+                        this.rowList[i].spec =  JSON.parse(this.rowList[i].spec);
+                    }
+
+
+                    /*分类选中*/
+                    this.catSelected1 = res.data.goods.category1Id;
+                    //控制选项默认选中状态
+                    if (res.data.goods.category1Id >= 0){
+                        this.grade  = 2
+                        this.loadCateData(this.catSelected1);
+                        this.catSelected2 = res.data.goods.category2Id;
+
+                        if (this.catSelected2 >= 0){
+                            axios.post("/itemCat/findByParentId?parentId="+this.catSelected2).then(res=>{
+                                //取服务端响应的结果
+                                this.categoryList3 = res.data;
+                            }).catch(err=>{
+                                console.log(err);
+                            })
+                            this.catSelected3 = res.data.goods.category3Id;
+                        }
+                    }
+                    console.log(res.data);
+                }).catch(err=> {
+                console.log(err);
+            });
+        }
     }
 });

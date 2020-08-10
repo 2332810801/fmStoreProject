@@ -11,12 +11,14 @@ import com.fmjava.core.dao.item.ItemDao;
 import com.fmjava.core.dao.seller.SellerDao;
 import com.fmjava.core.pojo.entity.GoodsEntity;
 import com.fmjava.core.pojo.entity.PageResult;
+import com.fmjava.core.pojo.entity.Result;
 import com.fmjava.core.pojo.good.Brand;
 import com.fmjava.core.pojo.good.Goods;
 import com.fmjava.core.pojo.good.GoodsDesc;
 import com.fmjava.core.pojo.good.GoodsQuery;
 import com.fmjava.core.pojo.item.Item;
 import com.fmjava.core.pojo.item.ItemCat;
+import com.fmjava.core.pojo.item.ItemQuery;
 import com.fmjava.core.pojo.seller.Seller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -72,33 +74,33 @@ public class GoodsServiceImpl implements GoodsService {
             if (goods.getAuditStatus() != null && !"".equals(goods.getAuditStatus())) {
                 criteria.andAuditStatusEqualTo(goods.getAuditStatus());
             }
-            if (goods.getSellerId() != null && !"".equals(goods.getSellerId())){
+            if (goods.getSellerId() != null && !"".equals(goods.getSellerId())&&!"admin".equals(goods.getSellerId())){
                 criteria.andSellerIdEqualTo(goods.getSellerId());
             }
         }
+        criteria.andIsDeleteNotEqualTo("1");
         Page<Goods> goodsList = (Page<Goods>)goodsDao.selectByExample(query);
         return new PageResult(goodsList.getTotal(), goodsList.getResult());
     }
-
     public void insertItem(GoodsEntity goodsEntity){
         if("1".equals(goodsEntity.getGoods().getIsEnableSpec())){
             //勾选了规格复选框
-                if(goodsEntity.getItemList()!=null){
-                    for (Item item : goodsEntity.getItemList()) {
-                            //商品标题：商品名称+规格选项值
-                        String title = goodsEntity.getGoods().getGoodsName();
-                        String spec = item.getSpec();
-                        Map specMap = JSON.parseObject(spec);
-                        Collection values = specMap.values();
-                        for (Object value : values) {
-                            title+=""+value;
-                        }
-                        /*设置标题*/
-                        item.setTitle(title);
-                        Item item1 = setItemValue(goodsEntity, item);
-                        itemDao.insertSelective(item1);
+            if(goodsEntity.getItemList()!=null){
+                for (Item item : goodsEntity.getItemList()) {
+                    //商品标题：商品名称+规格选项值
+                    String title = goodsEntity.getGoods().getGoodsName();
+                    String spec = item.getSpec();
+                    Map specMap = JSON.parseObject(spec);
+                    Collection values = specMap.values();
+                    for (Object value : values) {
+                        title+=""+value;
                     }
+                    /*设置标题*/
+                    item.setTitle(title);
+                    Item item1 = setItemValue(goodsEntity, item);
+                    itemDao.insertSelective(item1);
                 }
+            }
         }else {
             //没有勾选规格
             Item item = new Item();
@@ -114,7 +116,6 @@ public class GoodsServiceImpl implements GoodsService {
         }
 
     }
-
     private Item setItemValue(GoodsEntity goodsEntity, Item item) {
         //商品id
         item.setGoodsId(goodsEntity.getGoods().getId());
@@ -144,4 +145,74 @@ public class GoodsServiceImpl implements GoodsService {
         }
         return item;
     }
+
+
+    @Override
+    public GoodsEntity findOne(Long id) {
+        //1. 根据商品id查询商品对象
+        Goods goods = goodsDao.selectByPrimaryKey(id);
+        //2. 根据商品id查询商品详情对象
+        GoodsDesc goodsDesc = descDao.selectByPrimaryKey(id);
+
+        //3. 根据商品id查询库存集合对象
+        ItemQuery query = new ItemQuery();
+        ItemQuery.Criteria criteria = query.createCriteria();
+        criteria.andGoodsIdEqualTo(id);
+        List<Item> items = itemDao.selectByExample(query);
+
+        //4. 将以上查询到的对象封装到GoodsEntity中返回
+        GoodsEntity goodsEntity = new GoodsEntity();
+        goodsEntity.setGoods(goods);
+        goodsEntity.setGoodsDesc(goodsDesc);
+        goodsEntity.setItemList(items);
+        return goodsEntity;
+    }
+
+    @Override
+    public void update(GoodsEntity goodsEntity) {
+        //1. 修改商品对象
+        goodsDao.updateByPrimaryKeySelective(goodsEntity.getGoods());
+        //2. 修改商品详情对象
+        descDao.updateByPrimaryKeySelective(goodsEntity.getGoodsDesc());
+        //3. 根据商品id删除对应的库存集合数据
+        ItemQuery query = new ItemQuery();
+        ItemQuery.Criteria criteria = query.createCriteria();
+        criteria.andGoodsIdEqualTo(goodsEntity.getGoods().getId());
+        itemDao.deleteByExample(query);
+        //4. 添加库存集合数据
+        insertItem(goodsEntity);
+    }
+
+    @Override
+    public void delete(Long[] ids) {
+        if (ids != null) {
+            for (Long id : ids) {
+                Goods goods = new Goods();
+                goods.setId(id);
+                goods.setIsDelete("1");
+                goodsDao.updateByPrimaryKeySelective(goods);
+            }
+        }
+    }
+
+    @Override
+    public void updateStatus(Long[] ids, String status) {
+        if (ids != null) {
+            for (Long id : ids) {
+                //1. 根据商品id修改商品对象状态码
+                Goods goods  = new Goods();
+                goods.setId(id);
+                goods.setAuditStatus(status);
+                goodsDao.updateByPrimaryKeySelective(goods);
+                //2. 根据商品id修改库存集合对象状态码
+                Item item = new Item();
+                item.setStatus(status);
+                ItemQuery query = new ItemQuery();
+                ItemQuery.Criteria criteria = query.createCriteria();
+                criteria.andGoodsIdEqualTo(id);
+                itemDao.updateByExampleSelective(item, query);
+            }
+        }
+    }
+
 }

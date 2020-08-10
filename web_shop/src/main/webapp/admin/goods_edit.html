@@ -2,17 +2,17 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>商品编辑</title>
-    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>商品编辑</title>
+	<meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
 	<link rel="icon" href="img/favicon.ico">
-    <link rel="stylesheet" href="../plugins/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../plugins/adminLTE/css/AdminLTE.css">
-    <link rel="stylesheet" href="../plugins/adminLTE/css/skins/_all-skins.min.css">
-    <link rel="stylesheet" href="../css/style.css">
+	<link rel="stylesheet" href="../plugins/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="../plugins/adminLTE/css/AdminLTE.css">
+	<link rel="stylesheet" href="../plugins/adminLTE/css/skins/_all-skins.min.css">
+	<link rel="stylesheet" href="../css/style.css">
 	<script src="../plugins/jQuery/jquery-2.2.3.min.js"></script>
-    <script src="../plugins/bootstrap/js/bootstrap.min.js"></script>
+	<script src="../plugins/bootstrap/js/bootstrap.min.js"></script>
 
 	<script charset="utf-8" src="../plugins/umedit/ueditor.config.js"></script>
 	<script charset="utf-8" src="../plugins/umedit/ueditor.all.min.js"></script>
@@ -23,11 +23,11 @@
 		ue.ready(function () {
 			UE.Editor.prototype._bkGetActionUrl=UE.Editor.prototype.getActionUrl;
 			UE.Editor.prototype.getActionUrl=function (action) {
-					if(action=='upload/uploadImage.do'){
-						return "http://localhost:8083//upload/uploadImage";
-					}else {
-						return this._bkGetActionUrl.call(this,action);
-					}
+				if(action=='upload/uploadImage.do'){
+					return "http://localhost:8083//upload/uploadImage";
+				}else {
+					return this._bkGetActionUrl.call(this,action);
+				}
 			}
 		});
 	</script>
@@ -78,7 +78,7 @@
 	<section class="content">
 		<div class="box-body">
 			<!--tab页-->
-			</div>
+		</div>
 		<div class="nav-tabs-custom">
 			<!--tab头-->
 			<ul class="nav nav-tabs">
@@ -208,53 +208,54 @@
 					<div class="row data-type">
 						<div class="col-md-2 title">是否启用规格</div>
 						<div class="col-md-10 data">
-							<input type="checkbox" v-model="isEnableSpec" :true-value="1" :false-value="0">
+							<input type="checkbox" v-model="isEnableSpec" :true-value="1" :true-value="0">
 						</div>
 					</div>
-				<div v-if="isEnableSpec == 1">
-					<div class="row data-type">
-						<div v-for="specItem in specList">
-							<div class="col-md-2 title" >{{specItem.specName}}</div>
-							<div class="col-md-10 data">
+					<div v-if="isEnableSpec == 1">
+						<div class="row data-type">
+							<div v-for="specItem in specList">
+								<div class="col-md-2 title" >{{specItem.specName}}</div>
+								<div class="col-md-10 data">
 									<span v-for="option in specItem.options">
-										<input  type="checkbox" @click="updateSpecState($event,specItem.specName,option.optionName)">{{option.optionName}}
+										<input  type="checkbox" :checked="checkAttributeValue(specItem.specName,option.optionName)"
+												@click="updateSpecState($event,specItem.specName,option.optionName)">{{option.optionName}}
 									</span>
+								</div>
 							</div>
 						</div>
-					</div>
-					<div class="row data-type">
-						<table class="table table-bordered table-striped table-hover dataTable">
-							<thead>
-							<tr>
-								<th v-for="spec in specSelList" class="sorting">{{spec.specName}}</th>
-								<th class="sorting">价格</th>
-								<th class="sorting">库存</th>
-								<th class="sorting">是否启用</th>
-								<th class="sorting">是否默认</th>
-							</tr>
-							</thead>
-							<tbody>
-							<tr v-for="row in rowList">
-								<td v-for="spec in specSelList">
-									{{row.spec[spec.specName]}}
-								</td>
+						<div class="row data-type">
+							<table class="table table-bordered table-striped table-hover dataTable">
+								<thead>
+								<tr>
+									<th v-for="spec in specSelList" class="sorting">{{spec.specName}}</th>
+									<th class="sorting">价格</th>
+									<th class="sorting">库存</th>
+									<th class="sorting">是否启用</th>
+									<th class="sorting">是否默认</th>
+								</tr>
+								</thead>
+								<tbody>
+								<tr v-for="row in rowList">
+									<td v-for="spec in specSelList">
+										{{row.spec[spec.specName]}}
+									</td>
 
-								<td><input class="form-control" v-model="row.price"  placeholder="价格"></td>
-								<td><input class="form-control" v-model="row.num" placeholder="库存数量"></td>
-								<td><input type="checkbox" v-model="row.status" ></td>
-								<td><input type="checkbox" v-model="row.isDefault" ></td>
-							</tr>
-							</tbody>
-						</table>
+									<td><input class="form-control" v-model="row.price"  placeholder="价格"></td>
+									<td><input class="form-control" v-model="row.num" placeholder="库存数量"></td>
+									<td><input type="checkbox" v-model="row.status" ></td>
+									<td><input type="checkbox" v-model="row.isDefault" ></td>
+								</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div class="btn-toolbar list-toolbar">
+						<button class="btn btn-primary" @click="saveGoods()">
+							<i class="fa fa-save"></i>保存
+						</button>
+						<button class="btn btn-default" >返回列表</button>
 					</div>
 				</div>
-		<div class="btn-toolbar list-toolbar">
-			<button class="btn btn-primary" @click="saveGoods()">
-				<i class="fa fa-save"></i>保存
-			</button>
-			<button class="btn btn-default" >返回列表</button>
-		</div>
-		</div>
 			</div>
 		</div>
 	</section>
